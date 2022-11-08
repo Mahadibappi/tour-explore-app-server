@@ -9,7 +9,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get("/", (req, res) => {
-    res.send("torur server running")
+    res.send("tour server running")
 })
 
 app.listen(port, (req, res) => {
