@@ -14,6 +14,16 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.TOUR_USER}:${process.env.TOUR_PASSWORD}@cluster0.guw4vbk.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// crud operations 
+async function run() {
+    try{
+        const tourCollection = client.db("tourUser").collection('tours')
+    }
+    finally {
+        
+    }
+}
+run().catch(err=> console.log(err))
 app.get("/", (req, res) => {
     res.send("tour server running")
 })
