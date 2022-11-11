@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 require("dotenv").config();
@@ -22,6 +23,14 @@ async function run() {
   try {
     const serviceCollection = client.db("tourUser").collection("tours");
     const reviewCollection = client.db("tourUser").collection("review");
+    const addCollection = client.db("tourUser").collection("added");
+    // jwt
+
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+      res.send({ token })
+    })
 
     // get api
     app.get("/services", async (req, res) => {
@@ -50,6 +59,13 @@ async function run() {
       res.send(review);
     });
 
+    app.get("/added", async (req, res) => {
+      const query = {};
+      const cursor = addCollection.find(query);
+      const added = await cursor.toArray();
+      res.send(added);
+    });
+
     //review post api
     app.post("/review", async (req, res) => {
       const review = req.body;
@@ -57,14 +73,36 @@ async function run() {
       res.send(result);
     });
 
-    // delete review
+    //Add service post api
+    app.post("/added", async (req, res) => {
+      const add = req.body;
+      const result = await addCollection.insertOne(add);
+      res.send(result);
+    });
 
+    // delete review
     app.delete("/review/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
       res.send(result);
     });
+
+    // update api 
+    app.patch('/review/:id', async (req, res) => {
+      const id = req.params.id;
+      const status = req.body.status
+      const query = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: status
+        }
+
+      }
+      const result = await reviewCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+
   } finally {
   }
 }
@@ -77,5 +115,12 @@ app.listen(port, (req, res) => {
   console.log(`server running ${port}`);
 });
 
-// pass: qYTNkxT5XpUy8rx5
-// user = genius-user
+
+
+
+
+
+
+
+
+
